@@ -5,9 +5,11 @@ import cog_tool.common as common
 def get_command():
     return 'validate'
 
+def get_help():
+    return 'Sanity check given files.'
+
 def get_argparser():
-    parser = argparse.ArgumentParser(description='Runs a sanity check on the values.',
-                                     add_help=False)
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('files', nargs='+',
                         help='The files to check.')
     return parser

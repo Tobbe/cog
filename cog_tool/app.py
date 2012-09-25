@@ -10,7 +10,8 @@ def _make_parser(cmd_mods):
 
     for mod in cmd_mods:
         subparsers.add_parser(mod.get_command(),
-                              parents=[mod.get_argparser()])
+                              parents=[mod.get_argparser()],
+                              help=mod.get_help())
 
     return parser
 

@@ -7,9 +7,11 @@ import cog_tool.common as common
 def get_command():
     return 'new'
 
+def get_help():
+    return 'Create/update file with recommended values.'
+
 def get_argparser():
-    parser = argparse.ArgumentParser(description='Create new cog file with default values.',
-                                     add_help=False)
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', nargs=1,
                         help='The filename of the file to create. If an existing file is given any missing default values will be added to that file.')
     return parser
