@@ -32,7 +32,7 @@ c89ca551-ba00-4507-a4e2-29b686f3fc04 Should point to user story
 [PREREQ]
 82aace63-8349-415a-a520-40593f2c3214 Must finalize other tasks first
 
-[TAGS]
+[TAG]
 html
 export
 

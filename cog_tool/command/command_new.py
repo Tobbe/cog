@@ -14,9 +14,11 @@ def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', nargs=1,
                         help='The filename of the file to create. If an existing file is given any missing default values will be added to that file.')
+    parser.add_argument('--all', action='store_true',
+                        help='Create/update all headers.')
     return parser
 
-def set_if(data, key, value):
+def _set_if(data, key, value):
     if key in data:
         for line in data[key]:
             if len(line.strip()) > 0:
@@ -31,10 +33,12 @@ def execute(args):
     else:
         data = {}
 
-    set_if(data, 'ID', str(uuid.uuid4()))
-    set_if(data, 'NAME', '')
-    set_if(data, 'DESCRIPTION', '')
-    set_if(data, 'ASSIGNED', '')
-    set_if(data, 'IMPORTANCE', '')
+    _set_if(data, 'ID', str(uuid.uuid4()))
+    _set_if(data, 'NAME', '')
+    _set_if(data, 'DESCRIPTION', '')
+    if args.all:
+        for key in ['STATUS', 'ASSIGNED', 'IMPORTANCE', 'LINK',
+                    'ORIGINAL-ESTIMATE', 'PARENT', 'TAG', 'TIME-REPORT']:
+            _set_if(data, key, '')
 
     common.save(path, data)
