@@ -83,7 +83,12 @@ def _generate_html(data):
     _add_head(data, root)
 
     body = root.body()
+    body.p().a('main', href='index.html')
+
     _add_core(data, body)
+    _add_link_data(data, body, 'PARENT')
+    _add_link_data(data, body, 'PREREQ')
+    _add_link_data(data, body, 'LINK')
 
     return root
 
@@ -100,3 +105,19 @@ def _add_core(data, tag):
         tr = tbl.tr()
         tr.th(name)
         tr.td(common.get_value(data, key, '?'))
+
+def _add_link_data(data, tag, key):
+    name = key.lower()
+
+    p = tag.p()
+    p.strong(name)
+
+    lines = data.get(key, [])
+    if not lines:
+        p.ul().li('No links')
+        return
+
+    for line in filter(len, lines):
+        lst = p.ul()
+        link = line.split()[0]
+        lst.li().a('Something', href='%s.html' % (link,))
