@@ -80,6 +80,17 @@ def get_value(data, key, default=''):
             return line
     return default
 
+def add_last(data, key, value):
+    if not key in data:
+        data[key] = []
+
+    lines = data[key]
+    while lines and lines[-1] == '':
+        lines = lines[:-1]
+
+    lines.append(value)
+    data[key] = lines
+
 #--------------------------------------------------
 # path functions
 
