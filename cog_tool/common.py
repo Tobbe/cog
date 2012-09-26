@@ -1,4 +1,8 @@
+import os
 import re
+
+#--------------------------------------------------
+# load/save data
 
 RE_HEADER = re.compile('^\[([a-zA-Z0-9 _-]+)\]$')
 
@@ -65,3 +69,39 @@ def save(path, data):
     with open(path, 'w') as f:
         output(f, master_keys)
         output(f, other_keys)
+
+#--------------------------------------------------
+# data helpers
+
+def get_value(data, key, default=''):
+    """Returns the first non-empty, non-whitespace value."""
+    for line in data.get(key, []):
+        if line.strip():
+            return line
+    return default
+
+#--------------------------------------------------
+# path functions
+
+def expand_dirs(paths):
+    result = []
+
+    for path in paths:
+        if os.path.isdir(path):
+            result.extend([os.path.join(base, f)
+                           for base, dirs, files in os.walk(path)
+                           for f in files])
+        else:
+            result.append(path)
+
+    return result
+
+def filter_items(paths):
+    return [path
+            for path in paths
+            if path.endswith('.txt')]
+
+def filter_existing(paths):
+    return [path
+            for path in paths
+            if os.path.exists(path)]
