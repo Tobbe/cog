@@ -83,6 +83,9 @@ def get_value(data, key, default=''):
 #--------------------------------------------------
 # path functions
 
+def find_all_files(paths):
+    return filter_existing(filter_items(expand_dirs(paths)))
+
 def expand_dirs(paths):
     result = []
 

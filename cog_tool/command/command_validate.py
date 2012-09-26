@@ -10,7 +10,7 @@ def get_help():
 
 def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('files', nargs='+',
+    parser.add_argument('files', nargs='*', default='.',
                         help='The files to check.')
     return parser
 
@@ -41,5 +41,6 @@ def _check_file(path):
             print(' - %s' % (err,))
 
 def execute(args):
-    for f in args.files:
+    files = common.find_all_files(args.files)
+    for f in files:
         _check_file(f)
