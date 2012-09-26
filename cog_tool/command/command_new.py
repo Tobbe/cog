@@ -12,8 +12,8 @@ def get_help():
 
 def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('file', nargs=1,
-                        help='The filename of the file to create. If an existing file is given any missing default values will be added to that file.')
+    parser.add_argument('file', nargs='+',
+                        help='The filenames to create. If file exists; expand with missing headers.')
     parser.add_argument('--all', action='store_true',
                         help='Create/update all headers.')
     return parser
@@ -25,9 +25,7 @@ def _set_if(data, key, value):
                 return
     data[key] = [value]
 
-def execute(args):
-    path = args.file[0]
-
+def _do_file(args, path):
     if os.path.exists(path):
         data = common.load(path)
     else:
@@ -42,3 +40,15 @@ def execute(args):
             _set_if(data, key, '')
 
     common.save(path, data)
+
+def execute(args):
+    paths = common.expand_dirs(args.file)
+
+    for path in paths:
+        if os.path.exists(path):
+            if path.endswith('.txt'):
+                _do_file(args, path)
+        else:
+            if not path.endswith('.txt'):
+                path = '%s.txt' % (path,)
+            _do_file(args, path)
