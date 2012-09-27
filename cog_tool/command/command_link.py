@@ -46,7 +46,7 @@ def _link(args, data, path):
     name = common.get_value(data, 'NAME', path)
     common.add_last(data, key, '%s %s' % (other_id, name))
 
-def execute(args):
+def execute(state, args):
     if len(args.file) < 2:
         raise Exception('"link" command requires 2 or more arguments.')
 

@@ -18,7 +18,7 @@ def get_argparser():
                         help='Generate files to this directory. Will be created if needed. Default "%(default)s"')
     return parser
 
-def execute(args):
+def execute(state, args):
     files = common.filter_existing(common.filter_items(common.expand_dirs(args.files)))
     data_seq = [common.load(file)
                 for file in files]

@@ -41,7 +41,7 @@ def _do_file(args, path):
 
     common.save(path, data)
 
-def execute(args):
+def execute(state, args):
     paths = common.expand_dirs(args.file)
 
     for path in paths:

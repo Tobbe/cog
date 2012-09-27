@@ -40,7 +40,7 @@ def _check_file(path):
         for err in errors:
             print(' - %s' % (err,))
 
-def execute(args):
+def execute(state, args):
     files = common.find_all_files(args.files)
     for f in files:
         _check_file(f)
