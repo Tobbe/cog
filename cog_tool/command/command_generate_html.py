@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import cog_tool.common as common
@@ -30,6 +31,8 @@ def execute(state, args):
                 _generate_index(data_seq))
 
     for data in data_seq:
+        logging.info('Generating page for "%s"',
+                     common.get_value(data, 'NAME', '?'))
         html = _generate_html(data)
         _write_item(args.output, data, html)
 
@@ -53,6 +56,7 @@ def _add_link(data, tag):
 # index
 
 def _generate_index(data_seq):
+    logging.info('Generating index page')
     root = html.HTML('html')
     body = root.body()
     body.h1('Item listing')

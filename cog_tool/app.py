@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import logging
 import os
 
 import cog_tool.state as state
@@ -16,6 +17,11 @@ def _make_parser(cmd_mods):
                               help=mod.get_help())
 
     return parser
+
+def _setup_logging():
+    logging.basicConfig(format='%(asctime)s.%(msecs)d <%(levelname)s> %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
 
 def _load_commands():
     """Loads commands that can be found and returns them in a list."""
@@ -44,4 +50,5 @@ def _run_command(cmd, cmd_mods, args):
 def run(arg_seq=None):
     cmd_mods = _load_commands()
     args = _make_parser(cmd_mods).parse_args(args=arg_seq)
+    _setup_logging()
     _run_command(arg_seq[0], cmd_mods, args)

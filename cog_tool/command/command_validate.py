@@ -37,6 +37,7 @@ def _check_file(state, path):
         print('File: %s' % (path,))
         for err in errors:
             print(' - %s' % (err,))
+        print('')
 
 def execute(state, args):
     files = state.expand_paths(args.file)

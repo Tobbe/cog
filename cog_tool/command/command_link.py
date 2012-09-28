@@ -26,7 +26,7 @@ def _link(state, args, data, path):
     other = state.get_by_path(path)
     other_id = common.get_value(other, 'ID')
     if not other_id:
-        logging.warn('Can not link to "%s", no id.' % (path,))
+        logging.warn('Can not link to "%s", no id.', path)
         return
 
     key = 'LINK'
@@ -38,13 +38,17 @@ def _link(state, args, data, path):
     if not key in data:
         data[key] = []
 
-    lines = data[key]
-    for line in lines:
+    name = common.get_value(data, 'NAME', path)
+    for line in data[key]:
         if line.startswith(other_id):
+            logging.info('Already linked to "%s"', name)
             return
 
-    name = common.get_value(data, 'NAME', path)
     common.add_last(data, key, '%s %s' % (other_id, name))
+
+    logging.info('Linking "%s" to "%s"',
+                 common.get_value(data, 'NAME', '?'),
+                 name)
 
 def execute(state, args):
     if len(args.file) < 2:

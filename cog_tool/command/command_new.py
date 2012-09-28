@@ -1,4 +1,5 @@
 import argparse
+import logging
 import uuid
 
 def get_command():
@@ -25,7 +26,10 @@ def _set_if(data, key, value):
 def _do_file(state, args, path):
     data = state.get_by_path(path)
     if not data:
+        logging.info('Creating new file: %s', path)
         data = state.new(path)
+    else:
+        logging.info('Updating file %s', path)
 
     _set_if(data, 'ID', str(uuid.uuid4()))
     _set_if(data, 'NAME', '')
