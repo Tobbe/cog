@@ -1,7 +1,5 @@
 import argparse
 
-import cog_tool.common as common
-
 def get_command():
     return 'validate'
 
@@ -10,8 +8,8 @@ def get_help():
 
 def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('files', nargs='*', default='.',
-                        help='The files to check.')
+    parser.add_argument('file', nargs='*', default='.',
+                        help='The files to check. Default: "%(default)s"')
     return parser
 
 def _has_value(data, key):
@@ -28,8 +26,8 @@ def _add_error(lst, error):
     if error:
         lst.append(error)
 
-def _check_file(path):
-    data = common.load(path)
+def _check_file(state, path):
+    data = state.get_by_path(path)
     errors = []
 
     for key in ['ID', 'NAME', 'DESCRIPTION']:
@@ -41,6 +39,6 @@ def _check_file(path):
             print(' - %s' % (err,))
 
 def execute(state, args):
-    files = common.find_all_files(args.files)
+    files = state.expand_paths(args.file)
     for f in files:
-        _check_file(f)
+        _check_file(state, f)

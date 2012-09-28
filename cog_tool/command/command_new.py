@@ -1,8 +1,5 @@
 import argparse
-import os
 import uuid
-
-import cog_tool.common as common
 
 def get_command():
     return 'new'
@@ -25,11 +22,10 @@ def _set_if(data, key, value):
                 return
     data[key] = [value]
 
-def _do_file(args, path):
-    if os.path.exists(path):
-        data = common.load(path)
-    else:
-        data = {}
+def _do_file(state, args, path):
+    data = state.get_by_path(path)
+    if not data:
+        data = state.new(path)
 
     _set_if(data, 'ID', str(uuid.uuid4()))
     _set_if(data, 'NAME', '')
@@ -39,16 +35,28 @@ def _do_file(args, path):
                     'ORIGINAL-ESTIMATE', 'PARENT', 'TAG', 'TIME-REPORT']:
             _set_if(data, key, '')
 
-    common.save(path, data)
+    state.save(path)
 
 def execute(state, args):
-    paths = common.expand_dirs(args.file)
+    paths = state.expand_paths(args.file,
+                               only_items=False,
+                               only_existing=False)
 
     for path in paths:
-        if os.path.exists(path):
+        if state.get_by_path(path):
             if path.endswith('.txt'):
-                _do_file(args, path)
+                _do_file(state, args, path)
         else:
-            if not path.endswith('.txt'):
-                path = '%s.txt' % (path,)
-            _do_file(args, path)
+            parts = path.rsplit('.', 2)
+            name = parts[0]
+            ext = ''
+            if len(parts) == 2:
+                ext = parts[1]
+
+            if not ext == '.txt':
+                if ext:
+                    path += '.txt'
+                else:
+                    continue
+
+            _do_file(state, args, path)

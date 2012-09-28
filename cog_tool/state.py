@@ -1,9 +1,10 @@
+import copy
 import os
 
 import cog_tool.common as common
 
 _abs = os.path.abspath
-_PATH = object()
+_PATH = "_COG_INTERNAL_PATH"
 
 class State(object):
     def __init__(self, start_path='.'):
@@ -38,8 +39,17 @@ class State(object):
             if common.get_value(data, key) == value:
                 return data
 
+    def get_all(self):
+        self._load_all()
+        return self.dat.values()
+
     def _load(self, path):
+        path = _abs(path)
         if path in self.dat:
+            return
+        if not os.path.exists(path):
+            return
+        if not path.endswith('.txt'):
             return
         data = common.load(path)
         data[_PATH] = path
@@ -48,3 +58,27 @@ class State(object):
     def _load_all(self):
         for path in common.find_all_files([self.root]):
             self._load(path)
+
+    def new(self, path):
+        path = _abs(path)
+        data = {_PATH: path}
+        self.dat[path] = data
+        return data
+
+    def save(self, key):
+        data = self.get(key)
+        if not data:
+            raise Exception('Unknown key "%s"' % (key,))
+
+        path = data[_PATH]
+        save_data = copy.deepcopy(data)
+        del save_data[_PATH]
+        common.save(path, save_data)
+
+    def expand_paths(self, paths, only_items=True, only_existing=True):
+        result = common.expand_dirs(paths)
+        if only_items:
+            result = common.filter_existing(result)
+        if only_existing:
+            result = common.filter_items(result)
+        return result

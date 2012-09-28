@@ -22,8 +22,8 @@ def get_argparser():
                        help='The link is a prereq-link.')
     return parser
 
-def _link(args, data, path):
-    other = common.load(path)
+def _link(state, args, data, path):
+    other = state.get_by_path(path)
     other_id = common.get_value(other, 'ID')
     if not other_id:
         logging.warn('Can not link to "%s", no id.' % (path,))
@@ -53,9 +53,9 @@ def execute(state, args):
     from_ = args.file[0]
     to = args.file[1:]
 
-    data = common.load(from_)
+    data = state.get_by_path(from_)
 
-    for path in to:
-        _link(args, data, path)
+    for path in state.expand_paths(to):
+        _link(state, args, data, path)
 
-    common.save(from_, data)
+    state.save(from_)
