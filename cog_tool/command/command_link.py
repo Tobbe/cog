@@ -41,14 +41,15 @@ def _link(state, args, data, path):
     name = common.get_value(data, 'NAME', path)
     for line in data[key]:
         if line.startswith(other_id):
-            logging.info('Already linked to "%s"', name)
+            logging.info('Already linked to "%s"',
+                         common.get_value(other, 'NAME', '?'))
             return
 
     common.add_last(data, key, '%s %s' % (other_id, name))
 
     logging.info('Linking "%s" to "%s"',
                  common.get_value(data, 'NAME', '?'),
-                 name)
+                 common.get_value(other, 'NAME', '?'))
 
 def execute(state, args):
     if len(args.file) < 2:

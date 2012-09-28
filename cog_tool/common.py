@@ -91,6 +91,17 @@ def add_last(data, key, value):
     lines.append(value)
     data[key] = lines
 
+def get_links(data, key):
+    links = get_value(data, key, [])
+    result = []
+
+    for link in links:
+        if link.strip():
+            id = link.split()[0]
+            result.append(id)
+
+    return result
+
 #--------------------------------------------------
 # path functions
 

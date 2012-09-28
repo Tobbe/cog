@@ -59,8 +59,8 @@ def execute(state, args):
 
             if not ext == '.txt':
                 if ext:
-                    path += '.txt'
-                else:
                     continue
+                else:
+                    path += '.txt'
 
             _do_file(state, args, path)

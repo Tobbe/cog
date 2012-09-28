@@ -30,6 +30,10 @@ def execute(state, args):
                 'index.html',
                 _generate_index(data_seq))
 
+    _write_html(args.output,
+                'tree.html',
+                _generate_tree(state))
+
     for data in data_seq:
         logging.info('Generating page for "%s"',
                      common.get_value(data, 'NAME', '?'))
@@ -72,6 +76,57 @@ def _generate_index(data_seq):
         _add_link(data, tr.td())
 
     return root
+
+#--------------------------------------------------
+# tree
+
+def _generate_tree(state):
+    logging.info('Generating tree page')
+    root = html.HTML('html')
+    body = root.body()
+    body.h1('Tree view (parent)')
+
+    for data in _find_roots(state):
+        _generate_tree_data(body.div(), state, data)
+
+    return root
+
+def _generate_tree_data(tag, state, data, type='PARENT',
+                        indent=0, max_indent=10):
+    tr = tag.table().tr()
+
+    tr.td(common.get_value(data, 'NAME'))
+    tr.td(common.get_value(data, 'ID'), style='color: #aaaaaa;')
+
+    for child in _find_children(state, data):
+        _generate_tree_data(tag.div(style='margin-left: 50px'), state, child,
+                            type=type, indent=indent + 1, max_indent=max_indent)
+
+def _find_children(state, data, type='PARENT'):
+    id = common.get_value(data, 'ID')
+    result = []
+
+    for child in state.get_all():
+        links = child.get(type, [])
+        for link in links:
+            if link.strip():
+                part = link.split()[0]
+                if part == id:
+                    result.append(child)
+
+    return result
+
+def _find_roots(state, type='PARENT'):
+    result = []
+
+    for data in state.get_all():
+        if not common.get_value(data, type):
+            logging.debug('Found root item: %s (%s)',
+                          common.get_value(data, 'NAME'),
+                          common.get_value(data, 'ID'))
+            result.append(data)
+
+    return result
 
 #--------------------------------------------------
 # item html
