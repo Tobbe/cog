@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-import cog_tool.common as common
+import cog_tool.data_manipulation as dm
 
 def get_command():
     return 'link'
@@ -24,7 +24,7 @@ def get_argparser():
 
 def _link(state, args, data, path):
     other = state.get_by_path(path)
-    other_id = common.get_value(other, 'ID')
+    other_id = dm.get(other, 'ID')
     if not other_id:
         logging.warn('Can not link to "%s", no id.', path)
         return
@@ -38,18 +38,18 @@ def _link(state, args, data, path):
     if not key in data:
         data[key] = []
 
-    name = common.get_value(data, 'NAME', path)
+    name = dm.get(data, 'NAME', path)
     for line in data[key]:
         if line.startswith(other_id):
             logging.info('Already linked to "%s"',
-                         common.get_value(other, 'NAME', '?'))
+                         dm.get(other, 'NAME', '?'))
             return
 
-    common.add_last(data, key, '%s %s' % (other_id, name))
+    dm.add_last(data, key, '%s %s' % (other_id, name))
 
     logging.info('Linking "%s" to "%s"',
-                 common.get_value(data, 'NAME', '?'),
-                 common.get_value(other, 'NAME', '?'))
+                 dm.get(data, 'NAME', '?'),
+                 dm.get(other, 'NAME', '?'))
 
 def execute(state, args):
     if len(args.file) < 2:

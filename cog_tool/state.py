@@ -2,6 +2,7 @@ import copy
 import os
 
 import cog_tool.common as common
+import cog_tool.data_manipulation as dm
 
 _abs = os.path.abspath
 _PATH = "_COG_INTERNAL_PATH"
@@ -36,7 +37,7 @@ class State(object):
 
     def get_by_key(self, key, value):
         for data in self.dat.values():
-            if common.get_value(data, key) == value:
+            if dm.get(data, key) == value:
                 return data
 
     def get_all(self):

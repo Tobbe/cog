@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-import cog_tool.common as common
+import cog_tool.data_manipulation as dm
 import cog_tool.html as html
 
 def get_command():
@@ -36,7 +36,7 @@ def execute(state, args):
 
     for data in data_seq:
         logging.info('Generating page for "%s"',
-                     common.get_value(data, 'NAME', '?'))
+                     dm.get(data, 'NAME', '?'))
         html = _generate_html(data)
         _write_item(args.output, data, html)
 
@@ -51,8 +51,8 @@ def _write_html(root_path, path, html):
         f.write(str(html))
 
 def _add_link(data, tag):
-    id = common.get_value(data, 'ID')
-    name = common.get_value(data, 'NAME', id)
+    id = dm.get(data, 'ID')
+    name = dm.get(data, 'NAME', id)
     link = '%s.html' % (id,)
     tag.a(name, href=link)
 
@@ -70,7 +70,7 @@ def _generate_index(data_seq):
     header.th('item')
 
     for data in data_seq:
-        name = common.get_value(data, 'NAME', common.get_value(data, 'ID'))
+        name = dm.get(data, 'NAME', dm.get(data, 'ID'))
 
         tr = tbl.tr()
         _add_link(data, tr.td())
@@ -95,15 +95,15 @@ def _generate_tree_data(tag, state, data, type='PARENT',
                         indent=0, max_indent=10):
     tr = tag.table().tr()
 
-    tr.td(common.get_value(data, 'NAME'))
-    tr.td(common.get_value(data, 'ID'), style='color: #aaaaaa;')
+    tr.td(dm.get(data, 'NAME'))
+    tr.td(dm.get(data, 'ID'), style='color: #aaaaaa;')
 
     for child in _find_children(state, data):
         _generate_tree_data(tag.div(style='margin-left: 50px'), state, child,
                             type=type, indent=indent + 1, max_indent=max_indent)
 
 def _find_children(state, data, type='PARENT'):
-    id = common.get_value(data, 'ID')
+    id = dm.get(data, 'ID')
     result = []
 
     for child in state.get_all():
@@ -120,10 +120,10 @@ def _find_roots(state, type='PARENT'):
     result = []
 
     for data in state.get_all():
-        if not common.get_value(data, type):
+        if not dm.get(data, type):
             logging.debug('Found root item: %s (%s)',
-                          common.get_value(data, 'NAME'),
-                          common.get_value(data, 'ID'))
+                          dm.get(data, 'NAME'),
+                          dm.get(data, 'ID'))
             result.append(data)
 
     return result
@@ -132,7 +132,7 @@ def _find_roots(state, type='PARENT'):
 # item html
 
 def _write_item(root_path, data, html):
-    id = common.get_value(data, 'ID') or common.get_value(data, 'NAME')
+    id = dm.get(data, 'ID') or dm.get(data, 'NAME')
     path = os.path.join(root_path, '%s.html' % (id,))
     with open(path, 'w') as f:
         f.write(str(html))
@@ -152,7 +152,7 @@ def _generate_html(data):
     return root
 
 def _add_head(data, html):
-    title = common.get_value(data, 'NAME', '?')
+    title = dm.get(data, 'NAME', '?')
     html.head().title(title)
     html.h1(title)
 
@@ -163,7 +163,7 @@ def _add_core(data, tag):
         name = key.lower()
         tr = tbl.tr()
         tr.th(name)
-        tr.td(common.get_value(data, key, '?'))
+        tr.td(dm.get(data, key, '?'))
 
 def _add_link_data(data, tag, key):
     name = key.lower()
