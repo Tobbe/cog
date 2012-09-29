@@ -94,3 +94,7 @@ class State(object):
                     break
 
         return result
+
+    def relative_path(self, id):
+        data = self.get(id)
+        return data.get(_PATH, '')[len(self.root):]

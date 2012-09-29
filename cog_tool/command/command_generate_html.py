@@ -13,16 +13,12 @@ def get_help():
 
 def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('file', nargs='*', default='.',
-                        help='The files to export. If directory will recursivly add all files. Default: "%(default)s"')
     parser.add_argument('--output', default='html',
                         help='Generate files to this directory. Will be created if needed. Default "%(default)s"')
     return parser
 
 def execute(state, args):
-    files = state.expand_paths(args.file)
-    data_seq = [state.get_by_path(file)
-                for file in files]
+    data_seq = state.get_all()
 
     _setup_paths(args)
 
@@ -157,7 +153,7 @@ def _add_head(data, html):
 def _add_core(data, tag):
     tbl = tag.table()
 
-    for key in ['NAME', 'ID', 'IMPORTANCE']:
+    for key in ['NAME', 'ID', 'PRIORITY']:
         name = key.lower()
         tr = tbl.tr()
         tr.th(name)

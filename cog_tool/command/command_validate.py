@@ -1,5 +1,8 @@
 import argparse
 
+import cog_tool.data_manipulation as dm
+import cog_tool.state
+
 def get_command():
     return 'validate'
 
@@ -8,8 +11,6 @@ def get_help():
 
 def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('file', nargs='*', default='.',
-                        help='The files to check. Default: "%(default)s"')
     return parser
 
 def _has_value(data, key):
@@ -26,20 +27,18 @@ def _add_error(lst, error):
     if error:
         lst.append(error)
 
-def _check_file(state, path):
-    data = state.get_by_path(path)
+def _check_data(state, data):
     errors = []
 
-    for key in ['ID', 'NAME', 'DESCRIPTION']:
+    for key in ['ID', 'NAME']:
         _add_error(errors, _has_value(data, key))
 
     if errors:
-        print('File: %s' % (path,))
+        print('File: %s' % state.relative_path(dm.get(data, 'ID')))
         for err in errors:
             print(' - %s' % (err,))
         print('')
 
 def execute(state, args):
-    files = state.expand_paths(args.file)
-    for f in files:
-        _check_file(state, f)
+    for data in state.get_all():
+        _check_data(state, data)

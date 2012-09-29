@@ -15,7 +15,7 @@ karmag
 Make HTML files (include a index.html for easy access) of all the
 items in the repo.
 
-[IMPORTANCE]
+[PRIORITY]
 5
 
 [LINK]
