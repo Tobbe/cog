@@ -51,16 +51,7 @@ def execute(state, args):
             if path.endswith('.txt'):
                 _do_file(state, args, path)
         else:
-            parts = path.rsplit('.', 2)
-            name = parts[0]
-            ext = ''
-            if len(parts) == 2:
-                ext = parts[1]
-
-            if not ext == '.txt':
-                if ext:
-                    continue
-                else:
-                    path += '.txt'
+            if not path.endswith('.txt'):
+                path += '.txt'
 
             _do_file(state, args, path)

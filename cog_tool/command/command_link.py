@@ -13,13 +13,8 @@ def get_argparser():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', nargs='+',
                         help='The first file is being modified. Remaining files are link targets.')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--link', action='store_true',
-                       help='The link is a regular-link. This is the default.')
-    group.add_argument('--parent', action='store_true',
-                       help='The link is a parent-link.')
-    group.add_argument('--prereq', action='store_true',
-                       help='The link is a prereq-link.')
+    parser.add_argument('-t', '--type', choices=['link', 'parent', 'prereq'],
+                        required=True, help='Type of link.')
     return parser
 
 def _link(state, args, data, path):
@@ -29,11 +24,7 @@ def _link(state, args, data, path):
         logging.warn('Can not link to "%s", no id.', path)
         return
 
-    key = 'LINK'
-    if args.parent:
-        key = 'PARENT'
-    if args.prereq:
-        key = 'PREREQ'
+    key = args.type.upper()
 
     if not key in data:
         data[key] = []

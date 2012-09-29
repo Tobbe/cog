@@ -27,3 +27,10 @@ def get_links(data, key):
             result.append(id)
 
     return result
+
+def null(data, key):
+    """Returns True if the value of key is empty."""
+    for line in data.get(key, []):
+        if line.strip():
+            return False
+    return True

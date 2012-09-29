@@ -18,164 +18,139 @@ def get_argparser():
     return parser
 
 def execute(state, args):
-    data_seq = state.get_all()
-
     _setup_paths(args)
 
-    _write_html(args.output,
-                'index.html',
-                _generate_index(data_seq))
+    _write_html(os.path.join(args.output, 'list.html'),
+                _generate_item_list(state))
 
-    _write_html(args.output,
-                'tree.html',
+    _write_html(os.path.join(args.output, 'tree.html'),
                 _generate_tree(state))
 
-    for data in data_seq:
-        logging.info('Generating page for "%s"',
-                     dm.get(data, 'NAME', '?'))
-        html = _generate_html(state, data)
-        _write_item(args.output, data, html)
+    for data in state.get_all():
+        _write_html(os.path.join(args.output, dm.get(data, 'ID') + '.html'),
+                    _generate_item_page(state, data))
 
 def _setup_paths(args):
     if not os.path.exists(args.output):
         os.makedirs(args.output)
 
-def _write_html(root_path, path, html):
-    full_path = os.path.join(root_path, path)
+#--------------------------------------------------
+# common
 
-    with open(full_path, 'w') as f:
+def _write_html(path, html):
+    with open(path, 'w') as f:
         f.write(str(html))
 
-def _add_link(data, tag):
+def _make_page_base(title='?'):
+    root = html.HTML('html')
+    root.head().title('cog - %s' % (title,))
+
+    body = root.body()
+    body.h1(title)
+
+    tr = body.table().tr()
+    tr.td().a('Item list', href='list.html')
+    tr.td().a('Tree', href='tree.html')
+    body.hr()
+
+    return (root, body)
+
+def _add_link(tag, data):
     id = dm.get(data, 'ID')
     name = dm.get(data, 'NAME', id)
     link = '%s.html' % (id,)
     tag.a(name, href=link)
 
 #--------------------------------------------------
-# index
+# item listing
 
-def _generate_index(data_seq):
-    logging.info('Generating index page')
-    root = html.HTML('html')
-    body = root.body()
-    body.h1('Item listing')
+def _generate_item_list(state):
+    logging.info('Generating item list')
 
-    tbl = body.table()
-    header = tbl.tr()
-    header.th('item')
+    root, tag = _make_page_base('Item list')
+    items = sorted(state.get_all(),
+                   key=lambda x: dm.get(x, 'NAME'))
 
-    for data in data_seq:
-        name = dm.get(data, 'NAME', dm.get(data, 'ID'))
+    tbl = tag.table()
+    tr = tbl.tr()
+    tr.th('Name')
+    tr.th('Priority')
 
+    for data in items:
         tr = tbl.tr()
-        _add_link(data, tr.td())
+        _add_link(tr.td(), data)
+        tr.td(dm.get(data, 'PRIORITY', '?'))
 
     return root
 
 #--------------------------------------------------
 # tree
 
-def _generate_tree(state):
-    logging.info('Generating tree page')
-    root = html.HTML('html')
-    body = root.body()
-    body.h1('Tree view (parent)')
+def _generate_tree(state, key='PARENT'):
+    logging.info('Generating tree')
 
-    for data in _find_roots(state):
-        _generate_tree_data(body.div(), state, data)
+    root, tag = _make_page_base('Item tree')
+    root_items = [data
+                  for data in state.get_all()
+                  if dm.null(data, key)]
+
+    for data in root_items:
+        _generate_tree_item(state, data, tag, key=key)
 
     return root
 
-def _generate_tree_data(tag, state, data, type='PARENT',
-                        indent=0, max_indent=10):
-    tr = tag.table().tr()
-
-    tr.td(dm.get(data, 'NAME'))
-    tr.td(dm.get(data, 'ID'), style='color: #aaaaaa;')
-
-    for child in _find_children(state, data):
-        _generate_tree_data(tag.div(style='margin-left: 50px'), state, child,
-                            type=type, indent=indent + 1, max_indent=max_indent)
-
-def _find_children(state, data, type='PARENT'):
+def _generate_tree_item(state, data, tag, key='PARENT'):
     id = dm.get(data, 'ID')
-    result = []
 
-    for child in state.get_all():
-        links = child.get(type, [])
-        for link in links:
-            if link.strip():
-                part = link.split()[0]
-                if part == id:
-                    result.append(child)
+    tbl = tag.table(style='margin-left: 50px;')
+    tr = tbl.tr()
+    _add_link(tr.td(), data)
+    tr.td('Time remaining')
 
-    return result
-
-def _find_roots(state, type='PARENT'):
-    result = []
-
-    for data in state.get_all():
-        if not dm.get(data, type):
-            logging.debug('Found root item: %s (%s)',
-                          dm.get(data, 'NAME'),
-                          dm.get(data, 'ID'))
-            result.append(data)
-
-    return result
+    for child_data in state.children(id):
+        _generate_tree_item(state, child_data, tbl.tr().td(colspan='2'), key=key)
 
 #--------------------------------------------------
-# item html
+# item pages
 
-def _write_item(root_path, data, html):
-    id = dm.get(data, 'ID') or dm.get(data, 'NAME')
-    path = os.path.join(root_path, '%s.html' % (id,))
-    with open(path, 'w') as f:
-        f.write(str(html))
+def _generate_item_page(state, data):
+    name = dm.get(data, 'NAME', '?')
+    logging.debug('Generating "%s"', name)
+    root, tag = _make_page_base(name)
 
-def _generate_html(state, data):
-    root = html.HTML('html')
-    _add_head(data, root)
-
-    body = root.body()
-    body.p().a('main', href='index.html')
-
-    _add_core(data, body)
-    _add_all_links(state, data, body)
-
-    return root
-
-def _add_head(data, html):
-    title = dm.get(data, 'NAME', '?')
-    html.head().title(title)
-    html.h1(title)
-
-def _add_core(data, tag):
+    # basics
     tbl = tag.table()
-
-    for key in ['NAME', 'ID', 'PRIORITY']:
-        name = key.lower()
+    for key in ['ID', 'NAME', 'PRIORITY']:
+        title = key.lower()
         tr = tbl.tr()
-        tr.th(name)
+        tr.th(title)
         tr.td(dm.get(data, key, '?'))
 
-def _add_all_links(state, data, tag):
+    # parent
     tbl = tag.table()
+    tr = tbl.tr()
+    tr.th('Parent')
+    tr.th('Children')
 
     tr = tbl.tr()
-    tr.th('type')
-    tr.th('direction')
-    tr.th('item')
+    parent_td = tr.td()
+    child_td = tr.td()
 
-    for link_type in ['PARENT', 'PREREQ', 'LINK']:
-        for id in dm.get_links(data, link_type):
-            link_data = state.get(id)
-            tr = tbl.tr()
-            tr.td(link_type.lower())
-            tr.td('>>>')
-            _add_link(link_data, tr.td())
-        for child in state.children(dm.get(data, 'ID'), type=link_type):
-            tr = tbl.tr()
-            tr.td(link_type.lower())
-            tr.td('<<<')
-            _add_link(child, tr.td())
+    for id in dm.get_links(data, 'PARENT'):
+        other = state.get(id)
+        if other:
+            _add_link(parent_td.div(), other)
+
+    for other in state.children(dm.get(data, 'ID')):
+        if other:
+            _add_link(child_td.div(), other)
+
+    # links
+    tag.h2('Interesting items')
+    lst = tag.ul()
+    for id in dm.get_links(data, 'LINK'):
+        other = state.get(id)
+        if other:
+            _add_link(lst.li(), other)
+
+    return root

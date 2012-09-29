@@ -79,9 +79,9 @@ class State(object):
     def expand_paths(self, paths, only_items=True, only_existing=True):
         result = common.expand_dirs(paths)
         if only_items:
-            result = common.filter_existing(result)
-        if only_existing:
             result = common.filter_items(result)
+        if only_existing:
+            result = common.filter_existing(result)
         return result
 
     def children(self, master_id, type='PARENT'):
