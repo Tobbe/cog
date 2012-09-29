@@ -37,7 +37,7 @@ def execute(state, args):
     for data in data_seq:
         logging.info('Generating page for "%s"',
                      dm.get(data, 'NAME', '?'))
-        html = _generate_html(data)
+        html = _generate_html(state, data)
         _write_item(args.output, data, html)
 
 def _setup_paths(args):
@@ -137,7 +137,7 @@ def _write_item(root_path, data, html):
     with open(path, 'w') as f:
         f.write(str(html))
 
-def _generate_html(data):
+def _generate_html(state, data):
     root = html.HTML('html')
     _add_head(data, root)
 
@@ -145,9 +145,7 @@ def _generate_html(data):
     body.p().a('main', href='index.html')
 
     _add_core(data, body)
-    _add_link_data(data, body, 'PARENT')
-    _add_link_data(data, body, 'PREREQ')
-    _add_link_data(data, body, 'LINK')
+    _add_all_links(state, data, body)
 
     return root
 
@@ -165,18 +163,23 @@ def _add_core(data, tag):
         tr.th(name)
         tr.td(dm.get(data, key, '?'))
 
-def _add_link_data(data, tag, key):
-    name = key.lower()
+def _add_all_links(state, data, tag):
+    tbl = tag.table()
 
-    p = tag.p()
-    p.strong(name)
+    tr = tbl.tr()
+    tr.th('type')
+    tr.th('direction')
+    tr.th('item')
 
-    lines = data.get(key, [])
-    if not lines:
-        p.ul().li('No links')
-        return
-
-    for line in filter(len, lines):
-        lst = p.ul()
-        link = line.split()[0]
-        lst.li().a('Something', href='%s.html' % (link,))
+    for link_type in ['PARENT', 'PREREQ', 'LINK']:
+        for id in dm.get_links(data, link_type):
+            link_data = state.get(id)
+            tr = tbl.tr()
+            tr.td(link_type.lower())
+            tr.td('>>>')
+            _add_link(link_data, tr.td())
+        for child in state.children(dm.get(data, 'ID'), type=link_type):
+            tr = tbl.tr()
+            tr.td(link_type.lower())
+            tr.td('<<<')
+            _add_link(child, tr.td())

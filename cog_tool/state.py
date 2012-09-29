@@ -83,3 +83,14 @@ class State(object):
         if only_existing:
             result = common.filter_items(result)
         return result
+
+    def children(self, master_id, type='PARENT'):
+        result = []
+
+        for data in self.get_all():
+            for link_id in dm.get_links(data, type):
+                if link_id == master_id:
+                    result.append(data)
+                    break
+
+        return result
