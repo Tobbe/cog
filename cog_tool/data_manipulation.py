@@ -1,3 +1,6 @@
+"""This module provides functions for manipulating data
+items. (Generally gotten from the State object.)
+"""
 
 def get(data, key, default=''):
     """Returns the first non-empty, non-whitespace value."""

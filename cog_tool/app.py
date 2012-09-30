@@ -1,3 +1,5 @@
+"""Main entry point for the application.
+"""
 import argparse
 import importlib
 import logging

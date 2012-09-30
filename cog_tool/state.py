@@ -1,3 +1,13 @@
+"""State object.
+
+The state object manages the items in a project. It should be used
+within the project for tasks such as creating and fetching data
+objects.
+
+This object also contains functions that are relevant to data items
+but may need more information than what is available in a single data
+item.
+"""
 import copy
 import os
 

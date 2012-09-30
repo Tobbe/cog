@@ -1,3 +1,7 @@
+"""The common module is used internally and should not be used for
+implementing handlers. It provides functionality for reading and
+writing items as well as some path functions.
+"""
 import os
 import re
 
