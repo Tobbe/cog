@@ -5,7 +5,7 @@ import importlib
 import logging
 import os
 
-import cog_tool.state as state
+import cog_tool.state as st
 
 def _make_parser(cmd_mods):
     """Constructs an ArgumentParser by combining all the sub commands
@@ -39,12 +39,10 @@ def _load_commands():
 
     return result
 
-def _run_command(cmd, cmd_mods, args):
-    st = state.State()
-
+def _run_command(state, cmd, cmd_mods, args):
     for mod in cmd_mods:
         if mod.get_command() == cmd:
-            mod.execute(st, args)
+            mod.execute(state, args)
             return
 
     raise Exception('Unknown command "%s"' % (cmd,))
@@ -52,5 +50,7 @@ def _run_command(cmd, cmd_mods, args):
 def run(arg_seq=None):
     cmd_mods = _load_commands()
     args = _make_parser(cmd_mods).parse_args(args=arg_seq)
+    state = st.State()
+
     _setup_logging()
-    _run_command(arg_seq[0], cmd_mods, args)
+    _run_command(state, arg_seq[0], cmd_mods, args)
