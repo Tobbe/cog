@@ -26,7 +26,7 @@ Same as PARENT but instead indicates another item of interest.
 
 [PREREQ]
 
-[ORIGINAL-ESTIMATE]
+[ESTIMATE]
 
 [TAG]
 

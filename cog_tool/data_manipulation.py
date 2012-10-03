@@ -37,3 +37,30 @@ def null(data, key):
         if line.strip():
             return False
     return True
+
+#--------------------------------------------------
+# time
+
+def get_time_reports(data):
+    result = []
+
+    for line in data.get('TIME-REPORT', []):
+        line = line.strip()
+        if line:
+            time, user, spent, remaining = line.split()
+            result.append({'time': time,
+                           'user': user,
+                           'spent': spent,
+                           'remaining': remaining})
+
+    return sorted(result, key=lambda x: x['time'])
+
+def get_remaining_time(data):
+    reps = get_time_reports(data)
+    if not reps:
+        return -1
+
+    return int(reps[-1].get('remaining'))
+
+def get_estimate(data):
+    return int(get(data, 'ESTIMATE', -1))

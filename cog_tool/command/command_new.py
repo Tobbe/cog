@@ -36,7 +36,7 @@ def _do_file(state, args, path):
     _set_if(data, 'DESCRIPTION', '')
     if args.all:
         for key in ['STATUS', 'ASSIGNED', 'PRIORITY', 'LINK',
-                    'ORIGINAL-ESTIMATE', 'PARENT', 'TAG', 'TIME-REPORT']:
+                    'ESTIMATE', 'PARENT', 'TAG', 'TIME-REPORT']:
             _set_if(data, key, '')
 
     state.save(path)

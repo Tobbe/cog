@@ -15,7 +15,7 @@ class TestNew(test.TC):
 
         data = self.state.get_all()[0]
         for key in ['ID', 'NAME', 'DESCRIPTION', 'STATUS', 'ASSIGNED',
-                    'PRIORITY', 'LINK', 'PARENT']:
+                    'PRIORITY', 'LINK', 'PARENT', 'ESTIMATED', 'TIME-REPORT']:
             self.assertTrue(data.get(key))
 
     def test_create_new_multiple(self):

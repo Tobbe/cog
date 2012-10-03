@@ -45,7 +45,7 @@ def _make_page_base(title='?'):
     root = html.HTML('html')
     root.head().title('cog - %s' % (title,))
 
-    body = root.body()
+    body = root.body(style='background: #ccccee;')
     body.h1(title)
 
     tr = body.table().tr()
@@ -75,11 +75,15 @@ def _generate_item_list(state):
     tr = tbl.tr()
     tr.th('Name')
     tr.th('Priority')
+    tr.th('Remaining')
 
     for data in items:
         tr = tbl.tr()
         _add_link(tr.td(), data)
         tr.td(dm.get(data, 'PRIORITY', '?'))
+
+        remaining = dm.get_remaining_time(data)
+        tr.td(str(remaining if not remaining == -1 else '?'))
 
     return root
 
@@ -105,7 +109,8 @@ def _generate_tree_item(state, data, tag, key='PARENT'):
     tbl = tag.table(style='margin-left: 50px;')
     tr = tbl.tr()
     _add_link(tr.td(), data)
-    tr.td('Time remaining')
+    tr.td('%s (%s)' % (str(dm.get_remaining_time(data)),
+                       str(dm.get_estimate(data))))
 
     for child_data in state.children(id):
         _generate_tree_item(state, child_data, tbl.tr().td(colspan='2'), key=key)
@@ -152,5 +157,26 @@ def _generate_item_page(state, data):
         other = state.get(id)
         if other:
             _add_link(lst.li(), other)
+
+    # time
+    total = 0
+    for report in dm.get_time_reports(data):
+        total += int(report.get('spent'))
+
+    tag.h2('Time')
+    tag.p('Estimated time: ' + str(dm.get_estimate(data)))
+    tag.p('Total spent: %d' % (total,))
+
+    tbl = tag.table()
+    tr = tbl.tr()
+    tr.th('Date')
+    tr.th('User')
+    tr.th('Spent')
+    tr.th('Remaining')
+
+    for report in dm.get_time_reports(data):
+        tr = tbl.tr()
+        for key in ['time', 'user', 'spent', 'remaining']:
+            tr.td(str(report.get(key, '')))
 
     return root
