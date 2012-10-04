@@ -20,6 +20,9 @@ def add_last(data, key, value):
     lines.append(value)
     data[key] = lines
 
+def set(data, key, *values):
+    data[key] = list(values)
+
 def get_links(data, key):
     links = data.get(key, [])
     result = []
