@@ -45,7 +45,7 @@ def _make_page_base(title='?'):
     root = html.HTML('html')
     root.head().title('cog - %s' % (title,))
 
-    body = root.body(style='background: #ccccee;')
+    body = root.body(style='background: #cccccc;')
     body.h1(title)
 
     tr = body.table().tr()
@@ -61,6 +61,43 @@ def _add_link(tag, data):
     link = '%s.html' % (id,)
     tag.a(name, href=link)
 
+def _make_meter(tag, current, total):
+    ratio = (float(current) / total) * 100
+    tbl = tag.table(style='width: 20em; height: 1em; padding: 0.15 em; background: white; border-spacing: 0')
+    tr = tbl.tr()
+
+    if current == -1 or total == -1:
+        tr.td(style='background: grey;')
+    elif 0 >= ratio:
+        tr.td(style='background: yellow;')
+    elif 0 <= ratio <= 100:
+        tr.td(style='width: %.0f%%; background: green;' % (ratio,))
+        tr.td(style='background: white;')
+    elif 100 < ratio < 200:
+        ratio = ratio - 100
+        tr.td(style='width: %.0f%%; background: red;' % (ratio,))
+        tr.td(style='background: green;')
+    else:
+        tr.td(style='background: green;')
+
+def _make_relative_meter(tag, offset, total):
+    ratio = (float(offset) / total) * 50
+    ratio = min(ratio, 50)
+    ratio = max(ratio, -50)
+
+    tbl = tag.table()
+    tbl = tag.table(style='width: 20em; height: 1em; padding: 0.15 em; background: white; border-spacing: 0')
+    tr = tbl.tr()
+
+    if ratio < 0:
+        tr.td(style='background: white;')
+        tr.td(style='width: %.0f%%; background: red;' % (-ratio,))
+        tr.td(style='width: 50%; background: white;')
+    else:
+        tr.td(style='width: 50%; background: white;')
+        tr.td(style='width: %.0f%%; background: green;' % (max(ratio, 1),))
+        tr.td(style='background: white;')
+
 #--------------------------------------------------
 # item listing
 
@@ -73,17 +110,23 @@ def _generate_item_list(state):
 
     tbl = tag.table()
     tr = tbl.tr()
-    tr.th('Name')
-    tr.th('Priority')
-    tr.th('Remaining')
+    for name in ['Task', 'Assigned', 'Status', 'Estimated', 'Left', 'On track-o-meter', 'Projection']:
+        tr.th(name)
 
     for data in items:
+        spent = dm.get_time_spent(data)
+        remaining = dm.get_remaining_time(data)
+        estimate = dm.get_estimate(data)
+        time_projection = remaining - (estimate - spent)
+
         tr = tbl.tr()
         _add_link(tr.td(), data)
-        tr.td(dm.get(data, 'PRIORITY', '?'))
-
-        remaining = dm.get_remaining_time(data)
-        tr.td(str(remaining if not remaining == -1 else '?'))
+        tr.td(dm.get(data, 'ASSIGNED', '-'))
+        tr.td(dm.get_status(data) or '-')
+        tr.td(str(estimate))
+        tr.td('%d' % (remaining,))
+        _make_relative_meter(tr.td(), -time_projection, estimate)
+        tr.td('%+d' % (time_projection,))
 
     return root
 

@@ -58,12 +58,31 @@ def get_time_reports(data):
 
     return sorted(result, key=lambda x: x['time'])
 
+def get_time_spent(data):
+    reps = get_time_reports(data)
+    result = 0
+    for rep in reps:
+        result += int(rep['spent'])
+    return result
+
 def get_remaining_time(data):
     reps = get_time_reports(data)
     if not reps:
-        return -1
+        return get_estimate(data)
 
     return int(reps[-1].get('remaining'))
 
 def get_estimate(data):
     return int(get(data, 'ESTIMATE', -1))
+
+#--------------------------------------------------
+# status
+
+def get_status(data):
+    status = get(data, 'STATUS')
+    if not status:
+        if get_remaining_time(data) == 0:
+            status = 'done'
+        elif get_time_reports(data):
+            status = 'ongoing'
+    return status
