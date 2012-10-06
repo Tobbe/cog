@@ -1,5 +1,6 @@
 body {
     background: #434354;
+    font-family: helvetica, sans;
 }
 
 .main {
@@ -21,6 +22,20 @@ th {
 
 tr:nth-child(odd) {
     background: #b8b8e5;
+}
+
+/* Links */
+a:link, a:visited {
+    color: #0000ed;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ffff00;
+}
+
+a:active {
+    color: a8a800;
 }
 
 /* Status bar */
