@@ -1,0 +1,46 @@
+body {
+    background: #434354;
+}
+
+.main {
+    background: #ccccff;
+    height: 100%;
+    margin: auto;
+    width: 800px;
+}
+
+/* Generic table */
+table {
+    margin: auto;
+}
+
+th {
+    background: #000000;
+    color: #eeeeee;
+}
+
+tr:nth-child(odd) {
+    background: #b8b8e5;
+}
+
+/* Status bar */
+table.bar {
+    background: white;
+    border: 0.1em solid #434354;
+    border-spacing: 0;
+    height: 1em;
+    padding: 0.15 em;
+    width: 20em;
+}
+
+.bar_good {
+    background: green;
+}
+
+.bar_bad {
+    background: red;
+}
+
+.bar_none {
+    background: white;
+}

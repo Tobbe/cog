@@ -43,17 +43,19 @@ def _write_html(path, html):
 
 def _make_page_base(title='?'):
     root = html.HTML('html')
-    root.head().title('cog - %s' % (title,))
+    head = root.head()
+    head.title('cog - %s' % (title,))
+    head.link(rel='stylesheet', type='text/css', href='cog.css')
 
-    body = root.body(style='background: #cccccc;')
-    body.h1(title)
+    main = root.body().div(klass='main')
+    main.h1(title)
 
-    tr = body.table().tr()
+    tr = main.table().tr()
     tr.td().a('Item list', href='list.html')
     tr.td().a('Tree', href='tree.html')
-    body.hr()
+    main.hr()
 
-    return (root, body)
+    return (root, main)
 
 def _add_link(tag, data):
     id = dm.get(data, 'ID')
@@ -61,42 +63,22 @@ def _add_link(tag, data):
     link = '%s.html' % (id,)
     tag.a(name, href=link)
 
-def _make_meter(tag, current, total):
-    ratio = (float(current) / total) * 100
-    tbl = tag.table(style='width: 20em; height: 1em; padding: 0.15 em; background: white; border-spacing: 0')
-    tr = tbl.tr()
-
-    if current == -1 or total == -1:
-        tr.td(style='background: grey;')
-    elif 0 >= ratio:
-        tr.td(style='background: yellow;')
-    elif 0 <= ratio <= 100:
-        tr.td(style='width: %.0f%%; background: green;' % (ratio,))
-        tr.td(style='background: white;')
-    elif 100 < ratio < 200:
-        ratio = ratio - 100
-        tr.td(style='width: %.0f%%; background: red;' % (ratio,))
-        tr.td(style='background: green;')
-    else:
-        tr.td(style='background: green;')
-
 def _make_relative_meter(tag, offset, total):
     ratio = (float(offset) / total) * 50
     ratio = min(ratio, 50)
     ratio = max(ratio, -50)
 
-    tbl = tag.table()
-    tbl = tag.table(style='width: 20em; height: 1em; padding: 0.15 em; background: white; border-spacing: 0')
+    tbl = tag.table(klass='bar')
     tr = tbl.tr()
 
     if ratio < 0:
-        tr.td(style='background: white;')
-        tr.td(style='width: %.0f%%; background: red;' % (-ratio,))
-        tr.td(style='width: 50%; background: white;')
+        tr.td(klass='bar_none')
+        tr.td(klass='bar_bad', style='width: %.0f%%;' % (-ratio,))
+        tr.td(klass='bar_none', style='width: 50%;')
     else:
-        tr.td(style='width: 50%; background: white;')
-        tr.td(style='width: %.0f%%; background: green;' % (max(ratio, 1),))
-        tr.td(style='background: white;')
+        tr.td(klass='bar_none', style='width: 50%;')
+        tr.td(klass='bar_good', style='width: %.0f%%;' % (max(ratio, 1),))
+        tr.td(klass='bar_none')
 
 #--------------------------------------------------
 # item listing
