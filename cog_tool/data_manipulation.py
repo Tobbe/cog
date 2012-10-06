@@ -75,6 +75,9 @@ def get_remaining_time(data):
 def get_estimate(data):
     return int(get(data, 'ESTIMATE', -1))
 
+def get_projected_time_diff(data):
+    return get_remaining_time(data) - (get_estimate(data) - get_time_spent(data))
+
 #--------------------------------------------------
 # status
 

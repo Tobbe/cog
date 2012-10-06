@@ -45,6 +45,13 @@ a:active {
     color: a8a800;
 }
 
+/* Description */
+.description {
+    background: #eeeeee;
+    margin: 1em;
+    padding: 0.25em;
+}
+
 /* Status bar */
 table.bar {
     background: white;

@@ -121,7 +121,7 @@ def _generate_item_list_part(tag, data_seq):
         spent = dm.get_time_spent(data)
         remaining = dm.get_remaining_time(data)
         estimate = dm.get_estimate(data)
-        time_projection = remaining - (estimate - spent)
+        time_projection = dm.get_projected_time_diff(data)
 
         tr = tbl.tr()
         _add_link(tr.td(), data)
@@ -174,60 +174,74 @@ def _generate_item_page(state, data):
     logging.debug('Generating "%s"', name)
     root, tag = _make_page_base(name)
 
-    # basics
+    # basic
+    tag.h2('Basics')
     tbl = tag.table()
-    for key in ['ID', 'NAME', 'PRIORITY']:
-        title = key.lower()
+    for key in ['NAME', 'ID', 'PRIORITY']:
+        title = key[0] + key[1:].lower()
         tr = tbl.tr()
         tr.th(title)
         tr.td(dm.get(data, key, '?'))
-
-    # parent
-    tbl = tag.table()
     tr = tbl.tr()
-    tr.th('Parent')
-    tr.th('Children')
-
-    tr = tbl.tr()
-    parent_td = tr.td()
-    child_td = tr.td()
-
-    for id in dm.get_links(data, 'PARENT'):
-        other = state.get(id)
-        if other:
-            _add_link(parent_td.div(), other)
-
-    for other in state.children(dm.get(data, 'ID')):
-        if other:
-            _add_link(child_td.div(), other)
+    tr.th('Status')
+    tr.td(dm.get_status(data))
 
     # links
-    tag.h2('Interesting items')
-    lst = tag.ul()
-    for id in dm.get_links(data, 'LINK'):
-        other = state.get(id)
-        if other:
-            _add_link(lst.li(), other)
+    tag.h2('Links')
+    tbl = tag.table()
+    tr = tbl.tr()
+    for header in ['Parent', 'Child', 'Related']:
+        tr.th(header, width='33%')
+
+    parents = [state.get(key)
+               for key in dm.get_links(data, 'PARENT')]
+    children = state.children(dm.get(data, 'ID'))
+    related = [state.get(key)
+               for key in dm.get_links(data, 'LINK')]
+
+    for i in range(max(map(len, [parents, children, related]))):
+        tr = tbl.tr()
+        for items in [parents, children, related]:
+            if len(items) > i:
+                _add_link(tr.td(), items[i])
+            else:
+                tr.td()
+
+    # description
+    tag.h2('Description')
+    if dm.null(data, 'DESCRIPTION'):
+        tag.p('None')
+    else:
+        div = tag.div(klass='description')
+        for line in data.get('DESCRIPTION', []):
+            div.text(line)
+            div.br()
 
     # time
-    total = 0
-    for report in dm.get_time_reports(data):
-        total += int(report.get('spent'))
-
     tag.h2('Time')
-    tag.p('Estimated time: ' + str(dm.get_estimate(data)))
-    tag.p('Total spent: %d' % (total,))
+
+    tbl = tag.table(klass='small')
+    for key, value in [('Original estimate', dm.get_estimate(data)),
+                       ('Total time spent', dm.get_time_spent(data)),
+                       ('Current remaining time', dm.get_remaining_time(data))]:
+        tr = tbl.tr()
+        tr.th(key)
+        tr.td(str(value))
+    tr = tbl.tr()
+    tr.th('Status')
+    _make_relative_meter(tr.td(),
+                         -dm.get_projected_time_diff(data),
+                         dm.get_estimate(data))
+
+    tag.br()
 
     tbl = tag.table()
     tr = tbl.tr()
-    tr.th('Date')
-    tr.th('User')
-    tr.th('Spent')
-    tr.th('Remaining')
-
-    for report in dm.get_time_reports(data):
+    for header in ['Reported', 'User', 'Spent', 'Remaining']:
+        tr.th(header)
+    for rep in dm.get_time_reports(data):
         tr = tbl.tr()
         for key in ['time', 'user', 'spent', 'remaining']:
-            tr.td(str(report.get(key, '')))
+            tr.td(rep[key])
 
     return root
