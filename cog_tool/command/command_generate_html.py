@@ -48,12 +48,15 @@ def _make_page_base(title='?'):
     head.link(rel='stylesheet', type='text/css', href='cog.css')
 
     main = root.body().div(klass='main')
-    main.h1(title)
 
     tr = main.table().tr()
-    tr.td().a('Item list', href='list.html')
+    tr.td().raw_text('Cog&nbsp;HTML&nbsp;export')
+    tr.td().a('List', href='list.html')
     tr.td().a('Tree', href='tree.html')
+    tr.td(width='100%')
     main.hr()
+
+    main.h1(title)
 
     return (root, main)
 
@@ -185,6 +188,9 @@ def _generate_item_page(state, data):
     tr = tbl.tr()
     tr.th('Status')
     tr.td(dm.get_status(data))
+    tr = tbl.tr()
+    tr.th('Assigned')
+    tr.td(', '.join(filter(len, data.get('ASSIGNED', []))))
 
     # links
     tag.h2('Links')
@@ -209,9 +215,7 @@ def _generate_item_page(state, data):
 
     # description
     tag.h2('Description')
-    if dm.null(data, 'DESCRIPTION'):
-        tag.p('None')
-    else:
+    if not dm.null(data, 'DESCRIPTION'):
         div = tag.div(klass='description')
         for line in data.get('DESCRIPTION', []):
             div.text(line)

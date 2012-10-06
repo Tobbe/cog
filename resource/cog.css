@@ -8,19 +8,35 @@ body {
     border: 0.25em solid #8787a8;
     margin: auto;
     padding: 0.2em;
-    width: 50em;
+    width: 55em;
+}
+
+h1, h2 {
+    background: #005875;
+    border: 0.15em solid #545443;
+    color: eeeeee;
+    padding-left: 1em;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.2em;
 }
 
 /* Generic table */
 table {
     border: 0.15em solid #8787a8;
     margin: auto;
-    width: 100%;
+    width: 95%;
 }
 
 th {
     background: #25252e;
     color: #eeeeee;
+    text-align: left;
 }
 
 tr:nth-child(odd) {
@@ -48,7 +64,7 @@ a:active {
 /* Description */
 .description {
     background: #eeeeee;
-    margin: 1em;
+    margin: 1.5em;
     padding: 0.25em;
 }
 
