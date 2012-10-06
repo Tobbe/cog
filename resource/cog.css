@@ -27,6 +27,10 @@ tr:nth-child(odd) {
     background: #b8b8e5;
 }
 
+table.small {
+    width: 0%;
+}
+
 /* Links */
 a:link, a:visited {
     color: #0000ed;
@@ -61,4 +65,39 @@ table.bar {
 
 .bar_none {
     background: white;
+}
+
+/* Tree */
+table.tree {
+    border: none;
+    width: 100%;
+}
+
+td.tree {
+    background-color: #ccccff;
+}
+
+.tree-indent {
+    margin-left: 3em;
+}
+
+.status-box {
+    height: 1em;
+    width: 1em;
+}
+
+.status-not-started {
+    background: grey;
+}
+
+.status-ongoing {
+    background: yellow;
+}
+
+.status-waiting {
+    background: red;
+}
+
+.status-done {
+    background: green;
 }

@@ -142,22 +142,29 @@ def _generate_tree(state, key='PARENT'):
                   for data in state.get_all()
                   if dm.null(data, key)]
 
+    tbl = tag.table(klass='small')
+    for status in ['not-started', 'ongoing', 'waiting', 'done']:
+        tr = tbl.tr()
+        tr.td(klass='status-box status-%s' % (status,))
+        tr.td(status)
+
     for data in root_items:
-        _generate_tree_item(state, data, tag, key=key)
+        _generate_tree_item(state, data, tag, key=key, indent=False)
 
     return root
 
-def _generate_tree_item(state, data, tag, key='PARENT'):
+def _generate_tree_item(state, data, tag, key='PARENT', indent=True):
     id = dm.get(data, 'ID')
 
-    tbl = tag.table(style='margin-left: 50px;')
+    tbl = tag.table(klass='tree')
     tr = tbl.tr()
-    _add_link(tr.td(), data)
-    tr.td('%s (%s)' % (str(dm.get_remaining_time(data)),
-                       str(dm.get_estimate(data))))
 
-    for child_data in state.children(id):
-        _generate_tree_item(state, child_data, tbl.tr().td(colspan='2'), key=key)
+    status = dm.get_status(data)
+    tr.td(klass='status-box status-%s' % (status,))
+    _add_link(tr.td(klass='tree'), data)
+
+    for child_data in state.children(dm.get(data, 'ID')):
+        _generate_tree_item(state, child_data, tag.div(klass='tree-indent'), key=key)
 
 #--------------------------------------------------
 # item pages
