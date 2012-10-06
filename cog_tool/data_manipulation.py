@@ -85,4 +85,6 @@ def get_status(data):
             status = 'done'
         elif get_time_reports(data):
             status = 'ongoing'
+        else:
+            status = 'not-started'
     return status

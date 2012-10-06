@@ -87,15 +87,37 @@ def _generate_item_list(state):
     logging.info('Generating item list')
 
     root, tag = _make_page_base('Item list')
-    items = sorted(state.get_all(),
+    data_seq = sorted(state.get_all(),
                    key=lambda x: dm.get(x, 'NAME'))
 
+    grouped_data = _group_items(data_seq)
+
+    for key in ['ongoing', 'waiting', 'not-started', 'done']:
+        if key in grouped_data:
+            tag.h2(key)
+            _generate_item_list_part(tag, grouped_data[key])
+            tag.br()
+
+    return root
+
+def _group_items(data_seq):
+    result = {}
+
+    for data in data_seq:
+        status = dm.get_status(data)
+        if not status in result:
+            result[status] = []
+        result[status].append(data)
+
+    return result
+
+def _generate_item_list_part(tag, data_seq):
     tbl = tag.table()
     tr = tbl.tr()
-    for name in ['Task', 'Assigned', 'Status', 'Estimated', 'Left', 'On track-o-meter', 'Projection']:
+    for name in ['Task', 'Assigned', 'Estimated', 'Left', 'On track-o-meter', 'Projection']:
         tr.th(name)
 
-    for data in items:
+    for data in data_seq:
         spent = dm.get_time_spent(data)
         remaining = dm.get_remaining_time(data)
         estimate = dm.get_estimate(data)
@@ -104,13 +126,10 @@ def _generate_item_list(state):
         tr = tbl.tr()
         _add_link(tr.td(), data)
         tr.td(dm.get(data, 'ASSIGNED', '-'))
-        tr.td(dm.get_status(data) or '-')
         tr.td(str(estimate))
         tr.td('%d' % (remaining,))
         _make_relative_meter(tr.td(), -time_projection, estimate)
         tr.td('%+d' % (time_projection,))
-
-    return root
 
 #--------------------------------------------------
 # tree

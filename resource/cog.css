@@ -5,18 +5,21 @@ body {
 
 .main {
     background: #ccccff;
-    height: 100%;
+    border: 0.25em solid #8787a8;
     margin: auto;
-    width: 800px;
+    padding: 0.2em;
+    width: 50em;
 }
 
 /* Generic table */
 table {
+    border: 0.15em solid #8787a8;
     margin: auto;
+    width: 100%;
 }
 
 th {
-    background: #000000;
+    background: #25252e;
     color: #eeeeee;
 }
 
